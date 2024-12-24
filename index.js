@@ -51,7 +51,7 @@ app.post("/api/search", async (req, res) => {
       data: null,
     })
   }
-     const stream = await clients.client.chat.completions.create({
+     const stream = await client.chat.completions.create({
       model: "hunyuan-turbo",
       messages: [{ role: "user", content: text }],
       enable_enhancement: true, // <- 自定义参数
