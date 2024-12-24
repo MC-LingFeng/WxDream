@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const OpenAI = require('openai')
-require('openai/shims/node')
+require('openai/shims/web')
 const { init: initDB, Counter } = require("./db");
 
 
