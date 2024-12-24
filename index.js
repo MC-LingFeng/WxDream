@@ -2,6 +2,7 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+const openAi = require('openai')
 const { init: initDB, Counter } = require("./db");
 
 
@@ -34,6 +35,14 @@ app.post("/api/count", async (req, res) => {
   });
 });
 
+const apiKey =
+  "sk-zLofzr5n7ae4U5C1Vh2em9Cz4VEVLo2HlHwbRl3Tnpsq87BW";
+// 构造 client
+const client = new OpenAI({
+  apiKey: apiKey, // 混元 APIKey
+  baseURL: "https://api.hunyuan.cloud.tencent.com/v1", // 混元 endpoint
+});
+
 app.post("/api/search", async (req, res) => {
   const { text } = req.body;
   if (!text){
@@ -42,16 +51,16 @@ app.post("/api/search", async (req, res) => {
       data: null,
     })
   }
-    //  const stream = await clients.client.chat.completions.create({
-    //   model: "hunyuan-turbo",
-    //   messages: [{ role: "user", content: text }],
-    //   enable_enhancement: true, // <- 自定义参数
-    // });
+     const stream = await clients.client.chat.completions.create({
+      model: "hunyuan-turbo",
+      messages: [{ role: "user", content: text }],
+      enable_enhancement: true, // <- 自定义参数
+    });
   
   res.send({
     code: 0,
-    data: '',
-    // data: stream.choices[0]?.message?.content,
+    // data: '',
+    data: stream.choices[0]?.message?.content,
   });
 });
 
