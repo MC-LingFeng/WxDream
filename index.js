@@ -2,7 +2,7 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const openAi = require('openai')
+const OpenAI = require('openai')
 const { init: initDB, Counter } = require("./db");
 
 
