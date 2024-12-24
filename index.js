@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const { init: initDB, Counter } = require("./db");
+const clients = require('./openai')
 
 const logger = morgan("tiny");
 
@@ -30,6 +31,26 @@ app.post("/api/count", async (req, res) => {
   res.send({
     code: 0,
     data: await Counter.count(),
+  });
+});
+
+app.post("/api/search", async (req, res) => {
+  const { text } = req.body;
+  if (!text){
+    res.send({
+      code: -1,
+      data: null,
+    })
+  }
+     const stream = await clients.client.chat.completions.create({
+      model: "hunyuan-turbo",
+      messages: [{ role: "user", content: text }],
+      enable_enhancement: true, // <- 自定义参数
+    });
+  
+  res.send({
+    code: 0,
+    data: stream.choices[0]?.message?.content,
   });
 });
 
