@@ -2,7 +2,7 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const OpenAI = require('openai')
+const {OpenAIApi,Configuration } = require('openai')
 const { init: initDB, Counter } = require("./db");
 
 
@@ -38,31 +38,60 @@ app.post("/api/count", async (req, res) => {
 const apiKey =
   "sk-zLofzr5n7ae4U5C1Vh2em9Cz4VEVLo2HlHwbRl3Tnpsq87BW";
 // 构造 client
-const client = new OpenAI({
-  apiKey: apiKey, // 混元 APIKey
-  baseURL: "https://api.hunyuan.cloud.tencent.com/v1", // 混元 endpoint
+// const client = new OpenAI({
+//   apiKey: apiKey, // 混元 APIKey
+//   baseURL: "https://api.hunyuan.cloud.tencent.com/v1", // 混元 endpoint
+// });
+const configuration = new Configuration({
+  apiKey: apiKey,
+});
+const openai = new OpenAIApi(configuration);
+
+async function getAIResponse(prompt) {
+  const completion = await openai.createCompletion({
+    model: 'hunyuan-turbo',
+    prompt,
+    max_tokens: 1024,
+    temperature: 0.1,
+  });
+  return (completion?.data?.choices?.[0].text || 'AI 挂了').trim();
+}
+
+router.post('/message/post', async ctx => {
+  const { text } = ctx.request.body;
+
+  const response = await getAIResponse(text);
+  
+  ctx.body = {
+    ToUserName: FromUserName,
+    FromUserName: ToUserName,
+    CreateTime: +new Date(),
+    MsgType: 'text',
+    
+    Content: response,
+  };
 });
 
-app.post("/api/search", async (req, res) => {
-  const { text } = req.body;
-  if (!text){
-    res.send({
-      code: -1,
-      data: null,
-    })
-  }
-     const stream = await client.chat.completions.create({
-      model: "hunyuan-turbo",
-      messages: [{ role: "user", content: text }],
-      enable_enhancement: true, // <- 自定义参数
-    });
+// app.post("/api/search", async (req, res) => {
+//   const { text } = req.body;
+//   if (!text){
+//     res.send({
+//       code: -1,
+//       data: null,
+//     })
+//   }
+//      const stream = await client.chat.completions.create({
+//       model: "hunyuan-turbo",
+//       messages: [{ role: "user", content: text }],
+//       enable_enhancement: true, // <- 自定义参数
+//     });
   
-  res.send({
-    code: 0,
-    // data: '',
-    data: stream.choices[0]?.message?.content,
-  });
-});
+//   res.send({
+//     code: 0,
+//     // data: '',
+//     data: stream.choices[0]?.message?.content,
+//   });
+// });
 
 // 获取计数
 app.get("/api/count", async (req, res) => {
