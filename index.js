@@ -2,7 +2,7 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-require('openai/shims/web')
+
 const OpenAI = require('openai')
 
 const { init: initDB, Counter } = require("./db");
